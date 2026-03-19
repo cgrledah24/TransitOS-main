@@ -24,7 +24,7 @@ const translations = {
     dashboard: "Dashboard",
     calendar: "Calendar",
     trips: "Trips",
-    drivers: "Drivers",
+    drivers: "Users",
     whatsapp: "WhatsApp",
     settings: "Settings",
 
@@ -83,19 +83,19 @@ const translations = {
     statusUpdated: "Status updated",
     tripStatusChanged: "Trip status changed successfully",
 
-    // Drivers
-    driversTitle: "Drivers",
-    driversSubtitle: "Manage driver accounts.",
-    newDriver: "New Driver",
+    // Users
+    driversTitle: "Users",
+    driversSubtitle: "Manage user accounts.",
+    newDriver: "New User",
     fullName: "Full Name",
     phone: "Phone",
     role: "Role",
     admin: "Admin",
     driverRole: "Driver",
-    driverCreated: "Driver created",
-    driverUpdated: "Driver updated",
-    driverDeleted: "Driver deleted",
-    noDrivers: "No drivers found.",
+    driverCreated: "User created",
+    driverUpdated: "User updated",
+    driverDeleted: "User deleted",
+    noDrivers: "No users found.",
     usernameExists: "Username already exists",
 
     // WhatsApp
@@ -158,7 +158,7 @@ const translations = {
     dashboard: "Tablero",
     calendar: "Calendario",
     trips: "Viajes",
-    drivers: "Transportistas",
+    drivers: "Usuarios",
     whatsapp: "WhatsApp",
     settings: "Configuración",
 
@@ -217,19 +217,19 @@ const translations = {
     statusUpdated: "Estado actualizado",
     tripStatusChanged: "El estado del viaje fue actualizado correctamente",
 
-    // Drivers
-    driversTitle: "Transportistas",
-    driversSubtitle: "Gestionar cuentas de conductores.",
-    newDriver: "Nuevo Transportista",
+    // Users
+    driversTitle: "Usuarios",
+    driversSubtitle: "Gestionar cuentas de usuario.",
+    newDriver: "Nuevo Usuario",
     fullName: "Nombre Completo",
     phone: "Teléfono",
     role: "Rol",
     admin: "Administrador",
     driverRole: "Transportista",
-    driverCreated: "Transportista creado",
-    driverUpdated: "Transportista actualizado",
-    driverDeleted: "Transportista eliminado",
-    noDrivers: "No se encontraron transportistas.",
+    driverCreated: "Usuario creado",
+    driverUpdated: "Usuario actualizado",
+    driverDeleted: "Usuario eliminado",
+    noDrivers: "No se encontraron usuarios.",
     usernameExists: "El nombre de usuario ya existe",
 
     // WhatsApp
