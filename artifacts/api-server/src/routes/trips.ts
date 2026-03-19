@@ -31,7 +31,8 @@ router.get("/stats", requireAuth, async (req, res) => {
     }).from(tripsTable).where(and(dateFilter, driverFilter));
 
     const totalTrips = trips.length;
-    const totalRevenue = trips.reduce((sum, t) => sum + (t.amount || 0), 0);
+    // Revenue only counts completed trips — scheduled, in_progress and cancelled are excluded
+    const totalRevenue = trips.reduce((sum, t) => t.status === "completed" ? sum + (t.amount || 0) : sum, 0);
     const completedTrips = trips.filter(t => t.status === "completed").length;
     const scheduledTrips = trips.filter(t => t.status === "scheduled").length;
 
@@ -40,7 +41,8 @@ router.get("/stats", requireAuth, async (req, res) => {
       const existing = driverMap.get(trip.driverId) || { count: 0, amount: 0 };
       driverMap.set(trip.driverId, {
         count: existing.count + 1,
-        amount: existing.amount + (trip.amount || 0),
+        // Only add to revenue if the trip is completed
+        amount: existing.amount + (trip.status === "completed" ? (trip.amount || 0) : 0),
       });
     }
 
@@ -64,7 +66,8 @@ router.get("/stats", requireAuth, async (req, res) => {
       const existing = monthMap.get(key) || { count: 0, amount: 0 };
       monthMap.set(key, {
         count: existing.count + 1,
-        amount: existing.amount + (trip.amount || 0),
+        // Only add to revenue if the trip is completed
+        amount: existing.amount + (trip.status === "completed" ? (trip.amount || 0) : 0),
       });
     }
 
