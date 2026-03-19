@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db, tripsTable, usersTable } from "@workspace/db";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, inArray } from "drizzle-orm";
 import { requireAuth, requireAdmin } from "../lib/auth.js";
 
 const router = Router();
@@ -47,7 +47,7 @@ router.get("/stats", requireAuth, async (req, res) => {
     const driverIds = Array.from(driverMap.keys());
     const driverUsers = driverIds.length > 0
       ? await db.select({ id: usersTable.id, fullName: usersTable.fullName }).from(usersTable).where(
-          sql`${usersTable.id} = ANY(${driverIds})`
+          inArray(usersTable.id, driverIds)
         )
       : [];
 
