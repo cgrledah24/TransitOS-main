@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useListTrips } from "@workspace/api-client-react";
 import { useLanguage } from "@/hooks/use-language";
+import { useAuth } from "@/hooks/use-auth";
 import { PageTransition, Card, Button } from "@/components/ui/PremiumComponents";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, addMonths, subMonths, getDay } from "date-fns";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
@@ -10,6 +11,8 @@ export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [, setLocation] = useLocation();
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
 
   const { data: trips = [] } = useListTrips({
     year: currentDate.getFullYear(),
@@ -40,9 +43,11 @@ export default function Calendar() {
           <h1 className="text-3xl font-bold">{t.calendarTitle}</h1>
           <p className="text-muted-foreground mt-1">{t.calendarSubtitle}</p>
         </div>
-        <Button onClick={() => setLocation("/trips?new=true")} className="gap-2">
-          <Plus className="w-4 h-4" /> {t.addTrip}
-        </Button>
+        {isAdmin && (
+          <Button onClick={() => setLocation("/trips?new=true")} className="gap-2">
+            <Plus className="w-4 h-4" /> {t.addTrip}
+          </Button>
+        )}
       </div>
 
       <Card className="flex-1 flex flex-col overflow-hidden bg-card/60">
