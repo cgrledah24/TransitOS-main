@@ -78,6 +78,10 @@ const translations = {
     selectStatus: "Select status",
     missingFields: "Missing required fields",
     all: "All",
+    startTrip: "Start",
+    completeTrip: "Complete",
+    statusUpdated: "Status updated",
+    tripStatusChanged: "Trip status changed successfully",
 
     // Drivers
     driversTitle: "Drivers",
@@ -208,6 +212,10 @@ const translations = {
     selectStatus: "Seleccionar estado",
     missingFields: "Faltan campos obligatorios",
     all: "Todos",
+    startTrip: "Iniciar",
+    completeTrip: "Completar",
+    statusUpdated: "Estado actualizado",
+    tripStatusChanged: "El estado del viaje fue actualizado correctamente",
 
     // Drivers
     driversTitle: "Transportistas",

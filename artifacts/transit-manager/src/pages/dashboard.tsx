@@ -1,4 +1,4 @@
-import { useGetTripStats, useListTrips } from "@workspace/api-client-react";
+import { useGetTripStats, useListTrips, useUpdateTrip } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/hooks/use-language";
 import { PageTransition, Card } from "@/components/ui/PremiumComponents";
@@ -8,7 +8,10 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, LineChart, Line,
 } from "recharts";
-import { TrendingUp, Truck, DollarSign, CheckCircle, Calendar } from "lucide-react";
+import { TrendingUp, Truck, DollarSign, CheckCircle, Calendar, PlayCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 function StatCard({
   icon: Icon,
@@ -36,21 +39,47 @@ function StatCard({
   );
 }
 
+type TripStatus = "scheduled" | "in_progress" | "completed" | "cancelled";
+
 export default function Dashboard() {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { toast } = useToast();
   const isAdmin = user?.role === "admin";
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
 
-  const { data: stats } = useGetTripStats({ year, month });
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
+
+  const { data: stats, refetch: refetchStats } = useGetTripStats({ year, month });
   const { data: allStats } = useGetTripStats({ year });
-  const { data: trips = [] } = useListTrips({ year, month });
+  const { data: trips = [], refetch: refetchTrips } = useListTrips({ year, month });
+
+  const updateTripMutation = useUpdateTrip({
+    mutation: {
+      onSuccess: () => {
+        setUpdatingId(null);
+        refetchTrips();
+        refetchStats();
+        toast({ title: "✓ " + t.statusUpdated, description: t.tripStatusChanged });
+      },
+      onError: (err: any) => {
+        setUpdatingId(null);
+        const msg = err?.response?.data?.message || err?.message || "Error al actualizar";
+        toast({ title: "Error", description: msg, variant: "destructive" });
+      },
+    },
+  });
+
+  const handleStatusChange = (tripId: number, newStatus: TripStatus) => {
+    setUpdatingId(tripId);
+    updateTripMutation.mutate({ id: tripId, data: { status: newStatus } });
+  };
 
   const upcomingTrips = trips
-    .filter((t) => t.status === "scheduled" || t.status === "in_progress")
-    .slice(0, 5);
+    .filter((tr) => tr.status === "scheduled" || tr.status === "in_progress")
+    .slice(0, 8);
 
   const driverChartData = (stats?.byDriver || []).map((d) => ({
     name: d.driverName.split(" ")[0],
@@ -138,31 +167,95 @@ export default function Dashboard() {
         )}
 
         <Card className="p-6">
-          <h3 className="mb-4 font-semibold text-foreground">{isAdmin ? t.upcomingTrips : t.myUpcomingTrips}</h3>
+          <h3 className="mb-4 font-semibold text-foreground flex items-center gap-2">
+            <Truck className="h-4 w-4 text-primary" />
+            {isAdmin ? t.upcomingTrips : t.myUpcomingTrips}
+          </h3>
           {upcomingTrips.length > 0 ? (
             <div className="divide-y divide-border/30">
-              {upcomingTrips.map((trip) => (
-                <div key={trip.id} className="flex items-center justify-between py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
-                      <Truck className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{trip.origin} → {trip.destination}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {format(new Date(trip.date + "T00:00:00"), "d MMM yyyy")}
-                        {isAdmin && trip.driverName ? ` · ${trip.driverName}` : ""}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {trip.amount != null && <span className="text-sm font-semibold text-foreground">{formatCurrency(trip.amount)}</span>}
-                    <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusColors[trip.status] || ""}`}>
-                      {statusLabel[trip.status] || trip.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
+              <AnimatePresence initial={false}>
+                {upcomingTrips.map((trip) => {
+                  const isUpdating = updatingId === trip.id;
+                  return (
+                    <motion.div
+                      key={trip.id}
+                      layout
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 8 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex flex-col sm:flex-row sm:items-center gap-3 py-4"
+                    >
+                      {/* Trip info */}
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                          trip.status === "in_progress" ? "bg-yellow-500/15" : "bg-primary/10"
+                        }`}>
+                          <Truck className={`h-4 w-4 ${trip.status === "in_progress" ? "text-yellow-400" : "text-primary"}`} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">
+                            {trip.origin} → {trip.destination}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {format(new Date(trip.date + "T00:00:00"), "d MMM yyyy")}
+                            {isAdmin && trip.driverName ? ` · ${trip.driverName}` : ""}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Right side: amount + status badge + action buttons */}
+                      <div className="flex items-center gap-2 ml-12 sm:ml-0 flex-wrap">
+                        {trip.amount != null && (
+                          <span className="text-sm font-semibold text-foreground">
+                            {formatCurrency(trip.amount)}
+                          </span>
+                        )}
+
+                        {/* Status badge */}
+                        <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ${statusColors[trip.status] || ""}`}>
+                          {statusLabel[trip.status] || trip.status}
+                        </span>
+
+                        {/* Driver-only status action buttons */}
+                        {!isAdmin && (
+                          <>
+                            {trip.status === "scheduled" && (
+                              <button
+                                onClick={() => handleStatusChange(trip.id, "in_progress")}
+                                disabled={isUpdating}
+                                className="flex items-center gap-1.5 rounded-lg border border-yellow-500/40 bg-yellow-500/10 px-3 py-1.5 text-xs font-semibold text-yellow-400 transition-all hover:bg-yellow-500/20 hover:border-yellow-500/60 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {isUpdating ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <PlayCircle className="h-3.5 w-3.5" />
+                                )}
+                                {t.startTrip}
+                              </button>
+                            )}
+
+                            {trip.status === "in_progress" && (
+                              <button
+                                onClick={() => handleStatusChange(trip.id, "completed")}
+                                disabled={isUpdating}
+                                className="flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-400 transition-all hover:bg-emerald-500/20 hover:border-emerald-500/60 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {isUpdating ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <CheckCircle2 className="h-3.5 w-3.5" />
+                                )}
+                                {t.completeTrip}
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
             </div>
           ) : (
             <p className="text-center text-sm text-muted-foreground py-8">{t.noUpcomingTrips}</p>

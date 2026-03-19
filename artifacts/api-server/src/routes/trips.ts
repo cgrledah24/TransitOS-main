@@ -186,18 +186,73 @@ router.get("/:id", requireAuth, async (req, res) => {
   }
 });
 
-router.put("/:id", requireAdmin, async (req, res) => {
+router.put("/:id", requireAuth, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ error: "Bad Request", message: "Invalid trip ID" });
+      return;
+    }
+
+    const currentUser = (req as any).user;
+
+    // Fetch the existing trip to verify ownership for drivers
+    const [existing] = await db.select().from(tripsTable).where(eq(tripsTable.id, id));
+    if (!existing) {
+      res.status(404).json({ error: "Not Found", message: "Trip not found" });
+      return;
+    }
+
     const { date, origin, destination, driverId, notes, amount, status } = req.body;
     const updates: Record<string, any> = {};
-    if (date !== undefined) updates.date = date;
-    if (origin !== undefined) updates.origin = origin;
-    if (destination !== undefined) updates.destination = destination;
-    if (driverId !== undefined) updates.driverId = driverId;
-    if (notes !== undefined) updates.notes = notes;
-    if (amount !== undefined) updates.amount = amount;
-    if (status !== undefined) updates.status = status;
+
+    if (currentUser.role === "driver") {
+      // Drivers can only update status of their own assigned trips
+      if (existing.driverId !== currentUser.id) {
+        res.status(403).json({ error: "Forbidden", message: "You can only update your own trips" });
+        return;
+      }
+      // Drivers can only change status (not other fields)
+      if (status === undefined) {
+        res.status(400).json({ error: "Bad Request", message: "Drivers can only update the trip status" });
+        return;
+      }
+      // Drivers cannot cancel trips
+      const allowedStatuses = ["scheduled", "in_progress", "completed"];
+      if (!allowedStatuses.includes(status)) {
+        res.status(400).json({ error: "Bad Request", message: "Drivers can only set status to: scheduled, in_progress, or completed" });
+        return;
+      }
+      // Enforce valid transitions: scheduled → in_progress → completed
+      const validTransitions: Record<string, string[]> = {
+        scheduled: ["in_progress"],
+        in_progress: ["completed", "scheduled"],
+        completed: [],
+      };
+      const allowed = validTransitions[existing.status] ?? [];
+      if (!allowed.includes(status)) {
+        res.status(400).json({
+          error: "Bad Request",
+          message: `Cannot change status from '${existing.status}' to '${status}'`,
+        });
+        return;
+      }
+      updates.status = status;
+    } else {
+      // Admins can update any field
+      if (date !== undefined) updates.date = date;
+      if (origin !== undefined) updates.origin = origin;
+      if (destination !== undefined) updates.destination = destination;
+      if (driverId !== undefined) updates.driverId = driverId;
+      if (notes !== undefined) updates.notes = notes;
+      if (amount !== undefined) updates.amount = amount;
+      if (status !== undefined) updates.status = status;
+    }
+
+    if (Object.keys(updates).length === 0) {
+      res.status(400).json({ error: "Bad Request", message: "No valid fields to update" });
+      return;
+    }
 
     const [trip] = await db.update(tripsTable).set(updates).where(eq(tripsTable.id, id)).returning();
     if (!trip) {
