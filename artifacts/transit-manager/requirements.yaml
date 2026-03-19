@@ -1,0 +1,17 @@
+packages:
+  "recharts": "Dashboard analytics charts and data visualization"
+  "date-fns": "Human-readable date formatting and calendar logic"
+  "react-hook-form": "Form state management"
+  "@hookform/resolvers": "Zod validation integration for react-hook-form"
+  "framer-motion": "Page transitions and smooth micro-interactions"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility for merging tailwind classes safely"
+
+images:
+  - path: "artifacts/transit-manager/public/images/login-bg.png"
+    description: "Dark premium abstract background with deep blue, indigo, and subtle neon geometric shapes, enterprise tech feeling, highly polished"
+    aspect_ratio: "16:9"
+
+notes:
+  - Using workspace API client hooks from @workspace/api-client-react
+  - Patching window.fetch to automatically include JWT from localStorage

@@ -1,0 +1,22 @@
+Actúa como un Senior Full Stack Developer y Arquitecto de Cloud. Desarrolla una aplicación web profesional diseñada para ser gestionada en GitHub y desplegada en Netlify, siguiendo estas especificaciones:
+1. Arquitectura de Proyecto (Decoupled Stack)
+·	Frontend: Desarrolla una Single Page Application (SPA) utilizando React.js con Vite y Tailwind CSS. Esta carpeta será la que se despliegue en Netlify.
+·	Backend/API: Crea una API REST utilizando Node.js con Express (o Python FastAPI).
+·	Base de Datos: Configura la persistencia utilizando Replit PostgreSQL o una conexión a MongoDB Atlas para asegurar que los datos no se pierdan al exportar a GitHub.
+2. Configuración para Producción (GitHub & Netlify)
+·	Estructura de Repositorio: Organiza el código de forma limpia para que Netlify pueda detectar la carpeta /frontend como el "Base directory".
+·	Variables de Entorno: Utiliza archivos .env para manejar las credenciales de la API de WhatsApp, la URL de la base de datos y los tokens de seguridad. Genera un archivo example.env con las claves necesarias pero sin valores reales.
+·	Scripts de Build: Incluye un archivo netlify.toml en la raíz para configurar los redireccionamientos (Redirects) y asegurar que las rutas de React funcionen correctamente tras el despliegue.
+3. Módulos Funcionales (Misma lógica previa)
+	Seguridad y RBAC: Autenticación JWT. Usuario admin inicial (pass: 77777). Validación de contraseñas alfanuméricas con mayúscula. Roles de Admin y Transportista con acceso restringido por nivel.
+	Módulo de Calendarios:
+	Vista Global (Admin): Calendario mensual, registro de tránsitos con asignación de conductor, notas y montos. Reportes exportables.
+	Vista Transportista: Calendario filtrado solo con sus viajes asignados, notificaciones de tránsitos y widget de ingresos mensuales.
+	Integración WhatsApp Business API:
+	Módulo de configuración de Webhooks y Tokens.
+	Interfaz de chat para recepción y envío de mensajes en tiempo real.
+4. UI/UX y Dashboards
+·	Usa Lucide React para iconografía y Recharts para los gráficos de barras por conductor y KPIs mensuales.
+·	Asegura que el diseño sea totalmente responsive (Mobile First) para que los transportistas puedan usarlo desde sus teléfonos.
+Instrucción Final: Prepara el proyecto para que, al conectar mi cuenta de GitHub en Replit, todos los archivos estén listos para el primer 'Push' sin errores de dependencias.
+
