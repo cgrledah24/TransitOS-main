@@ -82,6 +82,15 @@ const translations = {
     completeTrip: "Complete",
     statusUpdated: "Status updated",
     tripStatusChanged: "Trip status changed successfully",
+    tripDetails: "Trip Details",
+    close: "Close",
+    cancelTrip: "Cancel Trip",
+    tripCancelled: "Trip cancelled",
+    dateFrom: "From",
+    dateTo: "To",
+    allDrivers: "All drivers",
+    nSelected: "selected",
+    filters: "Filters",
 
     // Users
     driversTitle: "Users",
@@ -216,6 +225,15 @@ const translations = {
     completeTrip: "Completar",
     statusUpdated: "Estado actualizado",
     tripStatusChanged: "El estado del viaje fue actualizado correctamente",
+    tripDetails: "Detalles del Viaje",
+    close: "Cerrar",
+    cancelTrip: "Cancelar Viaje",
+    tripCancelled: "Viaje cancelado",
+    dateFrom: "Desde",
+    dateTo: "Hasta",
+    allDrivers: "Todos los conductores",
+    nSelected: "seleccionados",
+    filters: "Filtros",
 
     // Users
     driversTitle: "Usuarios",

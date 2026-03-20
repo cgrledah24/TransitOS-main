@@ -7,7 +7,6 @@ import {
   CalendarDays,
   Map,
   Users,
-  MessageCircle,
   Settings,
   LogOut,
   Truck,
@@ -24,7 +23,6 @@ export function Sidebar() {
     { name: t.calendar, href: "/calendar", icon: CalendarDays, show: true },
     { name: t.trips, href: "/trips", icon: Map, show: true },
     { name: t.drivers, href: "/drivers", icon: Users, show: isAdmin },
-    { name: t.whatsapp, href: "/whatsapp", icon: MessageCircle, show: isAdmin },
     { name: t.settings, href: "/settings", icon: Settings, show: true },
   ];
 

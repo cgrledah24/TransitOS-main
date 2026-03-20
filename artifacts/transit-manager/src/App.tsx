@@ -12,7 +12,6 @@ import Dashboard from "./pages/dashboard";
 import Calendar from "./pages/calendar";
 import Trips from "./pages/trips";
 import Drivers from "./pages/drivers";
-import WhatsApp from "./pages/whatsapp";
 import Settings from "./pages/settings";
 import NotFound from "./pages/not-found";
 
@@ -34,7 +33,7 @@ function ProtectedRoutes() {
         <Route path="/calendar" component={Calendar} />
         <Route path="/trips" component={Trips} />
         <Route path="/drivers" component={Drivers} />
-        <Route path="/whatsapp" component={WhatsApp} />
+        <Route path="/whatsapp" component={Dashboard} />
         <Route path="/settings" component={Settings} />
         <Route component={NotFound} />
       </Switch>
